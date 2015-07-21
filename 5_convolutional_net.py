@@ -108,4 +108,5 @@ grid = ImageGrid(fig, 111, # similar to subplot(111)
 for c in range(10):
     grid[c].imshow(fillim(c),cmap=plt.cm.gray)
 
-plt.show()
+#plt.show()
+fig.savefig("test.png")
