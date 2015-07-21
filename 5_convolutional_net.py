@@ -95,7 +95,7 @@ import matplotlib.pyplot as plt
 from mpl_toolkits.axes_grid1 import ImageGrid
 
 def fillim(c):
-    im = w[0:625,c].eval()*50
+    im = w_o[0:625,c].eval()*50
     im.shape = 25,25
     return im
 
@@ -109,4 +109,4 @@ for c in range(10):
     grid[c].imshow(fillim(c),cmap=plt.cm.gray)
 
 #plt.show()
-fig.savefig("test.png")
+#fig.savefig("test.png")
