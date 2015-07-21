@@ -5,6 +5,9 @@ import numpy as np
 from load import mnist
 from theano.tensor.nnet.conv import conv2d
 from theano.tensor.signal.downsample import max_pool_2d
+import matplotlib.pyplot as plt
+from mpl_toolkits.axes_grid1 import ImageGrid
+import cPickle
 
 srng = RandomStreams()
 
@@ -86,27 +89,48 @@ updates = RMSprop(cost, params, lr=0.001)
 train = theano.function(inputs=[X, Y], outputs=cost, updates=updates, allow_input_downcast=True)
 predict = theano.function(inputs=[X], outputs=y_x, allow_input_downcast=True)
 
-for i in range(1):
+for i in range(50):
     for start, end in zip(range(0, len(trX), 128), range(128, len(trX), 128)):
         cost = train(trX[start:end], trY[start:end])
     print np.mean(np.argmax(teY, axis=1) == predict(teX))
 
-import matplotlib.pyplot as plt
-from mpl_toolkits.axes_grid1 import ImageGrid
+f = file('objects.save', 'wb')
+for obj in [l1, l2, l3, py_x]:
+	cPickle.dump(obj, f, protocol=cPickle.HIGHEST_PROTOCOL)
+f.close()
 
 def fillim(c):
-    im = w_o[0:625,c].eval()*50
-    im.shape = 25,25
+    im = w[0:784,c].eval()*50
+    im.shape = 28,28
     return im
 
-fig = plt.figure(1, (5., 5.))
-grid = ImageGrid(fig, 111, # similar to subplot(111)
-                 nrows_ncols = (2, 5), # creates 2x2 grid of axes
+def plotWights():
+	im = w2[0,c,0:3,0:3].eval()*50
+    	im.shape = 3,3
+	fig = plt.figure(1, (5., 5.))
+	grid = ImageGrid(fig, 111, # similar to subplot(111)
+                 nrows_ncols = (2, 16), # creates 2x2 grid of axes
                  axes_pad=0.1, # pad between axes in inch.
                  )
 
-for c in range(10):
-    grid[c].imshow(fillim(c),cmap=plt.cm.gray)
+	for c in range(32):
+    		grid[c].imshow(fillim(c),cmap=plt.cm.gray)
 
-#plt.show()
-#fig.savefig("test.png")
+	plt.show()	
+
+
+#todo: refactor
+def plotConvImage():
+	input=floatX(trX[0:784])
+	out=conv2d(input, w, border_mode='full')
+	out=out[0,0,0:28,0:28].eval()
+
+	fig = plt.figure(1, (5., 5.))
+	grid = ImageGrid(fig, 111, # similar to subplot(111)
+                 nrows_ncols = (2, 16), # creates 2x2 grid of axes
+                 axes_pad=0.1, # pad between axes in inch.
+                 )
+	grid[0].imshow(out,cmap=plt.cm.gray)
+	plt.show()
+
+
